@@ -2,11 +2,12 @@ const express = require('express')
 const User = require("../models/User")
 const router = express.Router()
 const { body, validationResult } = require("express-validator")
-const bcrypt = require ("bcryptjs")
-const jwt = require ("jsonwebtoken")
+const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
+const fetchuser = require("../middleware/fetchuser")
 
 
-const JWT_SECRETE= 'Harryisgoodb$oy';
+const JWT_SECRETE = 'Harryisgoodb$oy';
 
 //ROUTE 1-Create a user using: POST "/api/auth/createuser".doesnt require Auth
 
@@ -31,8 +32,8 @@ router.post(
         return res.status(400).json({ error: "sry user already exist" })
       }
 
-const salt = await bcrypt.genSalt(10)
-const secPass =  await bcrypt.hash(req.body.password, salt)  
+      const salt = await bcrypt.genSalt(10)
+      const secPass = await bcrypt.hash(req.body.password, salt)
 
 
       user = await User.create({
@@ -40,17 +41,17 @@ const secPass =  await bcrypt.hash(req.body.password, salt)
         email: req.body.email,
         password: secPass,
       })
-      const data= {
-        user:{
+      const data = {
+        user: {
           id: user.id
         }
       }
-      const authtoken = jwt.sign(data,JWT_SECRETE)
+      const authtoken = jwt.sign(data, JWT_SECRETE)
       console.log(authtoken)
 
       // res.json(user)
 
-      res.json({authtoken:authtoken})
+      res.json({ authtoken: authtoken })
     }
     catch (error) {
       console.log(error.message)
@@ -75,33 +76,47 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const {email, password} = req.body
+    const { email, password } = req.body
     try {
-      
-      let user = await User.findOne({email})
-      if(!user){
-        return res.status(400).json({error:"sry user does not exist"})
+
+      let user = await User.findOne({ email })
+      if (!user) {
+        return res.status(400).json({ error: "sry user does not exist" })
       }
 
-      const passwordCompare = await bcrypt.compare(password,user.password)
-      if(!passwordCompare){
-        return res.status(400).json({error:"password not matching"})
+      const passwordCompare = await bcrypt.compare(password, user.password)
+      if (!passwordCompare) {
+        return res.status(400).json({ error: "password not matching" })
       }
 
-      const data= {
-        user:{
+      const data = {
+        user: {
           id: user.id
         }
       }
-      const authtoken = jwt.sign(data,JWT_SECRETE)
-      res.json({authtoken})
+      const authtoken = jwt.sign(data, JWT_SECRETE)
+      res.json({ authtoken })
 
-    }  catch (error) {
+    } catch (error) {
       console.log(error.message)
       res.status(500).send("Internal server error")
     }
 
-  }) 
+  })
 
+//ROUTE 3-Get loged in user detail : POST "/api/auth/getuser".login required 
+
+router.post('/getuser', fetchuser, async (req, res) => {
+
+    try {
+      userId = req.user.id
+      const user = await User.findById(userId).select("-password")
+      res.send(user)
+
+    } catch (error) {
+      console.log(error.message)
+      res.status(500).send("Internal server error")
+    }
+  })
 
 module.exports = router
