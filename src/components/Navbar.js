@@ -18,7 +18,7 @@ function Navbar(props) {
     <div className="collapse navbar-collapse" id="navbarSupportedContent">
       <ul className="navbar-nav me-auto mb-2 mb-lg-0">
         <li className="nav-item">
-          <Link className={'nav-link ${location.pathname==="/about"?active:""}'} aria-current="page" to="/home">Home</Link>
+          <Link className={'nav-link ${location.pathname==="/home"?active:""}'} aria-current="page" to="/home">Home</Link>
         </li>
         <li className="nav-item">
           <Link className={'nav-link ${location.pathname==="/about"?active:""}'} to="/about">About</Link>
