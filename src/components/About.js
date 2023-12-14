@@ -3,9 +3,9 @@ import noteContext from '../context/notes/NoteContext'
 
 function About(props) {
  const a = useContext(noteContext)
- useEffect(() => {
-  
+ useEffect(() => { 
   a.update()
+  // eslint-disable-next-line
  }, []);
 
 
